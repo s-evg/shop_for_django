@@ -110,27 +110,27 @@ class Product(models.Model):
     def get_model_name(self):
         return self.__class__.__name__.lower()
 
-    def save(self, *args, **kwargs):
-        image = self.image
-        img = Image.open(image)
-        min_height, min_width = self.MIN_RESOLUTION
-        max_height, max_width = self.MAX_RESOLUTION
-        if img.height < min_height or img.width < min_width:
-            raise MinResolutionErrorException("Разрешение изображения меньше минимального!")
-        if img.height > max_height or img.width > max_width:
-            # raise MaxResolutionErrorException("Разрешение изображения больше доступного!")
-            image = self.image
-            img = Image.open(image)
-            new_img = img.convert("RGB")
-            resized_new_ing = new_img.resize((1600, 1600), Image.ANTIALIAS)
-            filestream = BytesIO()
-            resized_new_ing.save(filestream, "JPEG", quality=90)
-            filestream.seek(0)
-            name = "{}.{}".format(*self.image.name.split("."))
-            self.image = InMemoryUploadedFile(
-                filestream, "ImageField", name, "Jpeg/image", sys.getsizeof(filestream), None
-            )
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     image = self.image
+    #     img = Image.open(image)
+    #     min_height, min_width = self.MIN_RESOLUTION
+    #     max_height, max_width = self.MAX_RESOLUTION
+    #     if img.height < min_height or img.width < min_width:
+    #         raise MinResolutionErrorException("Разрешение изображения меньше минимального!")
+    #     if img.height > max_height or img.width > max_width:
+    #         # raise MaxResolutionErrorException("Разрешение изображения больше доступного!")
+    #         image = self.image
+    #         img = Image.open(image)
+    #         new_img = img.convert("RGB")
+    #         resized_new_ing = new_img.resize((1600, 1600), Image.ANTIALIAS)
+    #         filestream = BytesIO()
+    #         resized_new_ing.save(filestream, "JPEG", quality=90)
+    #         filestream.seek(0)
+    #         name = "{}.{}".format(*self.image.name.split("."))
+    #         self.image = InMemoryUploadedFile(
+    #             filestream, "ImageField", name, "Jpeg/image", sys.getsizeof(filestream), None
+    #         )
+    #     super().save(*args, **kwargs)
 
 
 class Notebook(Product):

@@ -41,10 +41,10 @@ class NotebookAdminForms(ModelForm):
         max_height, max_width = Product.MAX_RESOLUTION
         if image.size > Product.MAX_IMAGE_SIZE:
             raise ValidationError("Размер файла не должен превышать 3MB!")
-        # if img.height < min_height or img.width < min_width:
-        #     raise ValidationError("Разрешение изображения меньше меньшего!")
-        # if img.height > max_height or img.width > max_width:
-        #     raise ValidationError("Разрешение изображения больше большего!")
+        if img.height < min_height or img.width < min_width:
+            raise ValidationError("Разрешение изображения меньше меньшего!")
+        if img.height > max_height or img.width > max_width:
+            raise ValidationError("Разрешение изображения больше большего!")
         return image
 
 
