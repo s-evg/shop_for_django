@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load crispy_forms_tags %}
 
 {% block content %}
 <h3 class="text-center mt-5 mb-5">Оформление заказа.</h3>
@@ -37,7 +36,11 @@
 <h3 class="text-center mt-5 mb-5">Форма заказа</h3>
 <form action="{% url 'make_order' %}" method="POST">
   {% csrf_token %}
-  {{ form|crispy }}
+
+<!--{% load bootstrap5 %}-->
+{# Display a form #}
+{% bootstrap_form form %}
+
 <input type="submit" class="btn btn-success btn-block mb-3" value="Оформить заказ">
 </form>
 {% endblock content %}

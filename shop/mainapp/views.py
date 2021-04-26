@@ -75,7 +75,7 @@ class AddToCartView(CartMixin, View):
         if created:
             self.cart.products.add(cart_product)
         recalc_cart(self.cart)
-        # messages.add_message(request, messages.INFO, "Товар успешно добавлен")
+        messages.add_message(request, messages.INFO, "Товар успешно добавлен")
         return HttpResponseRedirect("/cart/")
 
 
@@ -133,7 +133,9 @@ class CheckoutView(CartMixin, View):
             "categories": categories,
             "form": form
         }
+        print("страница заказа")
         return render(request, "checkout.html", context)
+
 
 
 class MakeOrderView(CartMixin, View):
@@ -159,5 +161,7 @@ class MakeOrderView(CartMixin, View):
             new_order.save()
             customer.orders.add(new_order)
             messages.add_message(request, messages.INFO, "Заказ успешно оформлен!")
+            print("Заказ ОК")
             return HttpResponseRedirect("/")
+        print("С заказом что-то пошло не так")
         return HttpResponseRedirect("/checkout/")
