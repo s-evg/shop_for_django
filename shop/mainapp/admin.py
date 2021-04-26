@@ -12,7 +12,7 @@ class SmartphoneAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = kwargs.get("instance")
-        if not instance.sd:
+        if instance and not instance.sd:
             self.fields["sd_volume_max"].widget.attrs.update({
                 "readonly": True, "style": "background: gray"
             })
@@ -42,9 +42,9 @@ class NotebookAdminForms(ModelForm):
         if image.size > Product.MAX_IMAGE_SIZE:
             raise ValidationError("Размер файла не должен превышать 3MB!")
         if img.height < min_height or img.width < min_width:
-            raise ValidationError("Разрешение изображения меньше меньшего!")
-        if img.height > max_height or img.width > max_width:
-            raise ValidationError("Разрешение изображения больше большего!")
+            raise ValidationError("Разрешение изображения меньше 400*400 Px!")
+        # if img.height > max_height or img.width > max_width:
+        #     raise ValidationError("Разрешение изображения больше большего!")
         return image
 
 

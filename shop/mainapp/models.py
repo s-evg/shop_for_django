@@ -59,14 +59,15 @@ class CategoryManager(models.Manager):
 
     CATEGORY_NAME_COUNT_NAME = {
         "Ноутбуки": "notebook__count",
-        "Смартфоны": "smartphone__count"
+        "Смартфоны": "smartphone__count",
+        "Настольные ПК": "pc__count"
     }
 
     def get_queryset(self):
         return super().get_queryset()
 
     def get_categories_for_left_sidebar(self):
-        models = get_models_for_count("notebook", "smartphone")
+        models = get_models_for_count("notebook", "smartphone", "pc")
         qs = list(self.get_queryset().annotate(*models))
         data = [
             dict(name=c.name, url=c.get_absolute_url(), count=getattr(c, self.CATEGORY_NAME_COUNT_NAME[c.name]))
@@ -110,27 +111,27 @@ class Product(models.Model):
     def get_model_name(self):
         return self.__class__.__name__.lower()
 
-    # def save(self, *args, **kwargs):
-    #     image = self.image
-    #     img = Image.open(image)
-    #     min_height, min_width = self.MIN_RESOLUTION
-    #     max_height, max_width = self.MAX_RESOLUTION
-    #     if img.height < min_height or img.width < min_width:
-    #         raise MinResolutionErrorException("Разрешение изображения меньше минимального!")
-    #     if img.height > max_height or img.width > max_width:
-    #         # raise MaxResolutionErrorException("Разрешение изображения больше доступного!")
-    #         image = self.image
-    #         img = Image.open(image)
-    #         new_img = img.convert("RGB")
-    #         resized_new_ing = new_img.resize((1600, 1600), Image.ANTIALIAS)
-    #         filestream = BytesIO()
-    #         resized_new_ing.save(filestream, "JPEG", quality=90)
-    #         filestream.seek(0)
-    #         name = "{}.{}".format(*self.image.name.split("."))
-    #         self.image = InMemoryUploadedFile(
-    #             filestream, "ImageField", name, "Jpeg/image", sys.getsizeof(filestream), None
-    #         )
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        image = self.image
+        img = Image.open(image)
+        min_height, min_width = self.MIN_RESOLUTION
+        max_height, max_width = self.MAX_RESOLUTION
+        # if img.height < min_height or img.width < min_width:
+        #     raise MinResolutionErrorException("Разрешение изображения меньше минимального!")
+        if img.height > max_height or img.width > max_width:
+            # raise MaxResolutionErrorException("Разрешение изображения больше доступного!")
+            image = self.image
+            img = Image.open(image)
+            new_img = img.convert("RGB")
+            resized_new_ing = new_img.resize((1600, 1600), Image.ANTIALIAS)
+            filestream = BytesIO()
+            resized_new_ing.save(filestream, "JPEG", quality=90)
+            filestream.seek(0)
+            name = "{}.{}".format(*self.image.name.split("."))
+            self.image = InMemoryUploadedFile(
+                filestream, "ImageField", name, "Jpeg/image", sys.getsizeof(filestream), None
+            )
+        super().save(*args, **kwargs)
 
 
 class Notebook(Product):
@@ -149,17 +150,33 @@ class Notebook(Product):
         return get_product_url(self, "product_detail")
 
 
+class Pc(Product):
+
+    diagonal = models.CharField(max_length=255, verbose_name="Диагональ")
+    display_type = models.CharField(max_length=255, verbose_name="Тип дисплея")
+    processor_freq = models.CharField(max_length=255, verbose_name="Частота процессора")
+    ram = models.CharField(max_length=255, verbose_name="Оперативная память")
+    video = models.CharField(max_length=255, verbose_name="Видеокарта")
+    power = models.CharField(max_length=255, verbose_name="Мощность блока питания")
+
+    def __str__(self):
+        return "{} : {}".format(self.category.name, self.title)
+
+    def get_absolute_url(self):
+        return get_product_url(self, "product_detail")
+
+
 class Smartphone(Product):
 
     diagonal = models.CharField(max_length=255, verbose_name="Диагональ")
     display_type = models.CharField(max_length=255, verbose_name="Тип дисплея")
     resolution = models.CharField(max_length=255, verbose_name="Разрешение экрана")
-    accum_volume = models.CharField(max_length=255, verbose_name="Объём батарии")
+    accum_volume = models.CharField(max_length=255, verbose_name="Объём батареи")
     ram = models.CharField(max_length=255, verbose_name="Оперативная память")
     sd = models.BooleanField(default=True, verbose_name="Наличие SD карты")
     sd_volume_max = models.CharField(
         max_length=255, null=True, blank=True,
-        verbose_name="Максимальный объём паняти"
+        verbose_name="Максимальный объём памяти"
     )
     main_cam_mp = models.CharField(max_length=255, verbose_name="Основная камера")
     front_cam_mp = models.CharField(max_length=255, verbose_name="Фронтальная камера")
